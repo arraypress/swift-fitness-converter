@@ -1,13 +1,5 @@
 //
 //  FitnessConverter.swift
-//  swift-fitness-converter
-//
-//  Created by David Sherlock on 02/08/2025.
-//
-
-
-//
-//  FitnessConverter.swift
 //  FitnessConverter
 //
 //  A comprehensive fitness measurement converter for health and exercise calculations
@@ -116,7 +108,7 @@ public struct FitnessConverter {
     ///   - fromUnit: Source pace unit
     ///   - toUnit: Target pace unit
     /// - Returns: Converted pace in the same format as input, or nil if conversion fails
-    public static func convertPace<T: PaceConvertible>(
+    public static func convertPace<T: PaceConvertible & Sendable>(
         _ pace: T,
         from fromUnit: PaceUnit,
         to toUnit: PaceUnit
@@ -147,7 +139,7 @@ public struct FitnessConverter {
     ///   - fromUnit: Source pace unit
     ///   - toUnit: Target pace unit
     /// - Returns: Detailed conversion result with metadata
-    public static func convertPaceWithDetails<T: PaceConvertible>(
+    public static func convertPaceWithDetails<T: PaceConvertible & Sendable>(
         _ pace: T,
         from fromUnit: PaceUnit,
         to toUnit: PaceUnit

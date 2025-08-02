@@ -11,7 +11,7 @@ import Foundation
 ///
 /// Allows flexible pace input formats including strings ("7:30"),
 /// decimal minutes (7.5), and total seconds (450).
-public protocol PaceConvertible {
+public protocol PaceConvertible: Sendable {
     /// Convert this value to total seconds
     func toSeconds() -> Int?
     
