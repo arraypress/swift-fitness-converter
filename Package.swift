@@ -4,21 +4,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-fitness-converter",
+    name: "FitnessConverter",  // Package name
+    platforms: [
+        .iOS(.v13),
+        .macOS(.v10_15),
+        .tvOS(.v13),
+        .watchOS(.v6)
+    ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "swift-fitness-converter",
-            targets: ["swift-fitness-converter"]),
+            name: "FitnessConverter",  // What you import
+            targets: ["FitnessConverter"]),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "swift-fitness-converter"),
+            name: "FitnessConverter"),  // Target/module name
         .testTarget(
-            name: "swift-fitness-converterTests",
-            dependencies: ["swift-fitness-converter"]
-        ),
+            name: "FitnessConverterTests",
+            dependencies: ["FitnessConverter"]),
     ]
 )
