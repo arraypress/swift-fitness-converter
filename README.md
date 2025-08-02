@@ -1,17 +1,17 @@
 # Swift Fitness Converter
-
 A comprehensive Swift package for converting fitness measurements with precision and international support. Perfect for fitness apps, health platforms, and workout tracking applications.
 
 ## Features
-🏃 **Pace Conversions** - Convert running/walking pace between miles and kilometers with precision
-⚖️ **BMI Calculations** - Calculate Body Mass Index with different unit systems and health categories
-📏 **Distance Conversions** - Miles ↔ Kilometers, Meters, Yards, Feet with high accuracy
-📊 **Weight Conversions** - Pounds ↔ Kilograms ↔ Stones for international compatibility
-📐 **Height Conversions** - Feet/inches ↔ Centimeters ↔ Meters for global fitness tracking
-🎯 **Confidence Scoring** - Get reliability indicators for conversion accuracy
-🛡️ **Thread-Safe** - Concurrency-safe implementation for modern Swift
-📱 **Cross-Platform** - Supports iOS, macOS, tvOS, and watchOS
-🔄 **Multiple Input Formats** - String ("7:30"), decimal (7.5), and integer formats
+
+- 🏃 **Pace Conversions** - Convert running/walking pace between miles and kilometers with precision
+- ⚖️ **BMI Calculations** - Calculate Body Mass Index with different unit systems and health categories
+- 📏 **Distance Conversions** - Miles ↔ Kilometers, Meters, Yards, Feet with high accuracy
+- 📊 **Weight Conversions** - Pounds ↔ Kilograms ↔ Stones for international compatibility
+- 📐 **Height Conversions** - Feet/inches ↔ Centimeters ↔ Meters for global fitness tracking
+- 🎯 **Confidence Scoring** - Get reliability indicators for conversion accuracy
+- 🛡️ **Thread-Safe** - Concurrency-safe implementation for modern Swift
+- 📱 **Cross-Platform** - Supports iOS, macOS, tvOS, and watchOS
+- 🔄 **Multiple Input Formats** - String ("7:30"), decimal (7.5), and integer formats
 
 ## Installation
 
@@ -20,7 +20,7 @@ Add FitnessConverter to your project using Xcode or by adding it to your `Packag
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-username/swift-fitness-converter.git", from: "1.0.0")
+    .package(url: "https://github.com/arraypress/swift-fitness-converter.git", from: "1.0.0")
 ]
 ```
 
@@ -441,7 +441,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ### Development Setup
 
 ```bash
-git clone https://github.com/your-username/swift-fitness-converter.git
+git clone https://github.com/arraypress/swift-fitness-converter.git
 cd swift-fitness-converter
 swift test
 ```
