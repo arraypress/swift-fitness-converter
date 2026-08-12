@@ -145,7 +145,7 @@ public struct FitnessConverter {
         to toUnit: PaceUnit
     ) -> FitnessConversionResult<T> {
         
-        guard let paceInSeconds = pace.toSeconds() else {
+        guard let paceInSeconds = pace.toPreciseSeconds() else {
             return FitnessConversionResult(
                 originalValue: pace,
                 fromUnit: AnyFitnessUnit(fromUnit),
@@ -168,7 +168,7 @@ public struct FitnessConverter {
         }
         
         let convertedSeconds = convertPaceSeconds(paceInSeconds, from: fromUnit, to: toUnit)
-        guard let convertedPace = T.fromSeconds(convertedSeconds) else {
+        guard let convertedPace = T.fromPreciseSeconds(convertedSeconds) else {
             return FitnessConversionResult(
                 originalValue: pace,
                 fromUnit: AnyFitnessUnit(fromUnit),
@@ -178,8 +178,13 @@ public struct FitnessConverter {
             )
         }
         
-        let speedMph = 60.0 / (Double(paceInSeconds) / 60.0) // Convert pace to mph
-        let notes = "Equivalent to \(String(format: "%.1f", speedMph)) mph"
+        // Speed in whatever unit the pace was given in. A pace of 5:00 per
+        // kilometre is 12 km/h, not 12 mph — the arithmetic is the same either
+        // way, so only the label was ever wrong, which is the kind of wrong
+        // that gets believed.
+        let speed = 3600.0 / paceInSeconds
+        let speedUnit = fromUnit == .minutesPerMile ? "mph" : "km/h"
+        let notes = "Equivalent to \(String(format: "%.1f", speed)) \(speedUnit)"
         
         return FitnessConversionResult(
             originalValue: pace,

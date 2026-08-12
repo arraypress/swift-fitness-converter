@@ -8,7 +8,7 @@ final class FitnessConverterTests: XCTestCase {
     func testPaceConversionStringFormat() {
         // Test mile to km pace conversion
         let kmPace = FitnessConverter.convertPace("7:30", from: .minutesPerMile, to: .minutesPerKilometer)
-        XCTAssertEqual(kmPace, "4:39", "7:30 mile pace should convert to 4:39 km pace")
+        XCTAssertEqual(kmPace, "4:40", "7:30 mile pace should convert to 4:39 km pace")
         
         // Test km to mile pace conversion - use more precise starting value
         let milePace = FitnessConverter.convertPace("4:40", from: .minutesPerKilometer, to: .minutesPerMile)
@@ -25,7 +25,7 @@ final class FitnessConverterTests: XCTestCase {
         // Test decimal minutes
         let result = FitnessConverter.convertPace(7.5, from: .minutesPerMile, to: .minutesPerKilometer)
         XCTAssertNotNil(result, "Decimal pace conversion should succeed")
-        XCTAssertEqual(result!, 4.65, accuracy: 0.01, "7.5 min/mile should convert to ~4.65 min/km")
+        XCTAssertEqual(result!, 4.66, accuracy: 0.01, "7.5 min/mile should convert to ~4.65 min/km")
     }
     
     func testPaceConversionIntegerFormat() {
@@ -51,7 +51,7 @@ final class FitnessConverterTests: XCTestCase {
         let result = FitnessConverter.convertPaceWithDetails("7:30", from: .minutesPerMile, to: .minutesPerKilometer)
         
         XCTAssertTrue(result.isSuccess, "Conversion should be successful")
-        XCTAssertEqual(result.convertedPace, "4:39", "Converted pace should be correct")
+        XCTAssertEqual(result.convertedPace, "4:40", "Converted pace should be correct")
         XCTAssertEqual(result.confidence, 1.0, "Confidence should be 1.0 for exact conversion")
         XCTAssertNotNil(result.notes, "Notes should contain speed equivalent")
         XCTAssertTrue(result.notes?.contains("mph") == true, "Notes should mention speed in mph")
@@ -178,7 +178,7 @@ final class FitnessConverterTests: XCTestCase {
     func testConvenienceMethods() {
         // Test mile to km pace shortcuts
         let kmPace = FitnessConverter.milePaceToKmPace("7:30")
-        XCTAssertEqual(kmPace, "4:39", "Mile to km pace shortcut should work")
+        XCTAssertEqual(kmPace, "4:40", "Mile to km pace shortcut should work")
         
         // Test km to mile pace with more forgiving assertion
         let milePace = FitnessConverter.kmPaceToMilePace("4:40")
@@ -341,5 +341,53 @@ final class FitnessConverterTests: XCTestCase {
         // Test PaceUnit
         XCTAssertEqual(PaceUnit.minutesPerMile.distanceInMeters, 1609.344, "Mile pace distance should be correct")
         XCTAssertEqual(PaceUnit.minutesPerKilometer.distanceInMeters, 1000.0, "Kilometer pace distance should be correct")
+    }
+
+    // MARK: - Pace precision
+
+    /// Pace was truncated toward zero, so every converted pace came back up to
+    /// a second fast. 7:30 per mile is 4:39.6 per kilometre, which is 4:40.
+    func testPaceRoundsRatherThanTruncates() {
+        XCTAssertEqual(FitnessConverter.milePaceToKmPace("7:30"), "4:40")
+        XCTAssertEqual(FitnessConverter.kmPaceToMilePace("5:00"), "8:03")
+    }
+
+    /// A pace held as decimal minutes can carry a fraction of a second, and
+    /// forcing it through a whole one lost 0.6 s/km. 7.5 min/mile is
+    /// 4.6603 min/km exactly.
+    func testDecimalPaceKeepsItsFraction() {
+        let converted: Double? = FitnessConverter.convertPace(
+            7.5, from: .minutesPerMile, to: .minutesPerKilometer
+        )
+        XCTAssertEqual(try XCTUnwrap(converted), 4.6603, accuracy: 0.0005)
+    }
+
+    /// Both representations describe the same run, so they must agree to
+    /// within the second that the string one is rounded to.
+    func testTheStringAndDecimalPathsAgree() throws {
+        let asText = try XCTUnwrap(FitnessConverter.milePaceToKmPace("7:30"))
+        let asDecimal: Double = try XCTUnwrap(
+            FitnessConverter.convertPace(7.5, from: .minutesPerMile, to: .minutesPerKilometer)
+        )
+        let parts = asText.split(separator: ":").compactMap { Double($0) }
+        let textAsMinutes = parts[0] + parts[1] / 60
+        XCTAssertEqual(textAsMinutes, asDecimal, accuracy: 0.5 / 60)
+    }
+
+    /// A pace per kilometre converts to a speed in km/h. It was reported as
+    /// mph — the arithmetic was right and the unit was not, which is the kind
+    /// of wrong that gets believed.
+    func testEquivalentSpeedIsLabelledInTheUnitItWasGivenIn() throws {
+        let metric = FitnessConverter.convertPaceWithDetails(
+            "5:00", from: .minutesPerKilometer, to: .minutesPerMile
+        )
+        let metricNotes = try XCTUnwrap(metric.notes)
+        XCTAssertTrue(metricNotes.contains("12.0 km/h"), metricNotes)
+
+        let imperial = FitnessConverter.convertPaceWithDetails(
+            "7:30", from: .minutesPerMile, to: .minutesPerKilometer
+        )
+        let imperialNotes = try XCTUnwrap(imperial.notes)
+        XCTAssertTrue(imperialNotes.contains("8.0 mph"), imperialNotes)
     }
 }

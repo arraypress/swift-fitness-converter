@@ -28,7 +28,23 @@ extension FitnessConverter {
         let toDistance = toUnit.distanceInMeters
         let ratio = toDistance / fromDistance
         
-        return Int(Double(paceInSeconds) * ratio)
+        // Rounded, not truncated. Int() throws away the fraction, which
+        // biases every converted pace downward by up to a second — 5:00/km is
+        // 8:02.8 per mile and was reported as 8:02.
+        return Int((Double(paceInSeconds) * ratio).rounded())
+    }
+
+    /// The same ratio, with nothing rounded away.
+    ///
+    /// Callers that can hold a fraction of a second should use this and round
+    /// once, at the point where the value is finally written down.
+    internal static func convertPaceSeconds(
+        _ paceInSeconds: Double,
+        from fromUnit: PaceUnit,
+        to toUnit: PaceUnit
+    ) -> Double {
+        guard fromUnit != toUnit else { return paceInSeconds }
+        return paceInSeconds * (toUnit.distanceInMeters / fromUnit.distanceInMeters)
     }
     
     /// Get BMI category classification
