@@ -5,6 +5,7 @@ A comprehensive Swift package for fitness measurement conversions and health cal
 ## Features
 
 - 🏃 **Pace conversion** — Convert running/walking pace between minutes-per-mile and minutes-per-kilometer, with `String` ("7:30"), `Int`, and `Double` inputs.
+- 🍽️ **Daily calorie target** — Mifflin–St Jeor energy at rest × activity, a lose/keep/gain goal, and protein, fat and carbohydrate grams; never under energy at rest.
 - ⚖️ **BMI calculation** — Compute Body Mass Index from any mix of weight and height units, returning WHO-standard category context.
 - 📏 **Distance conversion** — Miles, kilometers, meters, yards, and feet with high-precision metre-based math.
 - 🏋️ **Weight conversion** — Pounds, kilograms, and stones.
@@ -83,6 +84,29 @@ let detailed = FitnessConverter.calculateBMIWithDetails(
 print(detailed.calculatedValue ?? 0)  // 22.9
 print(detailed.notes ?? "")           // "BMI Category: Normal weight"
 ```
+
+### A daily calorie target
+
+```swift
+import FitnessConverter
+
+let target = try FitnessConverter.energyTarget(
+    weight: 82, height: 180,
+    weightUnit: .kilograms, heightUnit: .centimeters,
+    age: 34, sex: .male,
+    activity: .moderatelyActive,
+    goal: .lose(kilogramsPerWeek: 0.5)
+)
+// resting 1780 · maintenance 2759 · change −550 · calories 2209
+// protein 131 g · fat 74 g · carbohydrate 255 g
+```
+
+- **Energy at rest** is Mifflin–St Jeor (1990): 10 × kg + 6.25 × cm − 5 × age, +5 for men, −161 for women; `.other` takes the midpoint, −78.
+- **Maintenance** multiplies it by the `ActivityLevel` (1.2 sedentary … 1.9 extra active).
+- **The goal** moves it by the weekly rate × 7,700 kcal per kilogram ÷ 7 (0.5 kg a week = 550 kcal a day). Rates above 1 kg a week are refused.
+- **Never under energy at rest:** a goal that would go lower is raised to it, and `raisedToResting` says so.
+- **Macronutrients:** protein 1.6 g per kg of body weight, fat 30 % of the energy (both adjustable), carbohydrate the rest.
+- Adults only (18–100). Every figure is a published convention, not a measurement of anyone: a starting point to adjust from real weight change, not medical advice.
 
 ### Converting distance, weight, and height
 
